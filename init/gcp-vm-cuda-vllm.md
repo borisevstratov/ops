@@ -68,3 +68,62 @@ vllm serve rednote-hilab/dots.ocr \
     --api-key YOUR_API_KEY \
     --chat-template-content-format string
 ```
+
+---
+
+## Starting VLLM service manually
+
+```bash
+/opt/vllm-runtime/.venv/bin/vllm serve rednote-hilab/dots.ocr \
+    --trust-remote-code \
+    --api-key TOUR_API_KEY \
+    --chat-template-content-format string
+ ```
+
+## Adding a `systemd` service
+
+1. Add the service configuration
+
+```bash
+sudo tee /etc/systemd/system/vllm.service > /dev/null <<'EOF'
+[Unit]
+Description=vLLM API Server
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_LINUX_USER
+WorkingDirectory=/opt/vllm-runtime
+ExecStart=/opt/vllm-runtime/.venv/bin/vllm serve rednote-hilab/dots.ocr \
+    --trust-remote-code \
+    --api-key EMPTY \
+    --chat-template-content-format string
+Restart=always
+RestartSec=5
+Environment=PATH=/opt/vllm-runtime/.venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/YOUR_LINUX_USER
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+2. Reload and enable the service
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable vllm
+sudo systemctl start vllm
+```
+
+3. Verify it’s running
+
+```bash
+sudo systemctl status vllm
+```
+
+4. Check logs
+
+```
+journalctl -u vllm -f
+```

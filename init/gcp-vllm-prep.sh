@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -eux
 
 # Check for root privileges
 if [ "$EUID" -ne 0 ]; then

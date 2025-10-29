@@ -44,18 +44,6 @@ vllm serve rednote-hilab/dots.ocr \
 
 ```
 
-5. Install Caddy
-
-```bash
-sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-chmod o+r /etc/apt/sources.list.d/caddy-stable.list
-sudo apt update
-sudo apt install caddy
-```
-
 At this point basic setup is finished.
 
 You can use any Open AI compatible sdk, setting `base_url` to `http://YOUR_VM_IP_ADDRESS/v1/`
@@ -75,7 +63,19 @@ In this section, we will add custom domain, define custom script to always start
 
 0. Make sure you've obtained a static IP and bound it to `YOUR_DOMAIN_NAME` by creating a DNS A-record.
 
-1. Define Caddyfile to serve VLLM
+1. Install Caddy
+
+```bash
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+chmod o+r /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update
+sudo apt install caddy
+```
+
+2. Define Caddyfile to serve VLLM
 
 ```bash
 sudo tee /etc/caddy/Caddyfile > /dev/null <<EOF
@@ -85,7 +85,7 @@ YOUR_DOMAIN_NAME {
 EOF
 ```
 
-2. Add the service configuration
+3. Add the service configuration
 
 ```bash
 sudo tee /etc/systemd/system/vllm.service > /dev/null <<'EOF'
@@ -111,7 +111,7 @@ WantedBy=multi-user.target
 EOF
 ```
 
-3. Reload and enable the service
+4. Reload and enable the service
 
 ```bash
 sudo systemctl daemon-reload
@@ -119,16 +119,16 @@ sudo systemctl enable vllm
 sudo systemctl start vllm
 ```
 
-4. Verify it’s running
+5. Verify it’s running
 
 ```bash
 sudo systemctl status vllm
 ```
 
-5. Check logs
+6. Check logs
 
 ```
 journalctl -u vllm -f
 ```
 
-6. You can use any Open AI compatible sdk, setting `base_url` to `https://YOUR_DOMAIN_NAME/v1/`
+7. You can use any Open AI compatible sdk, setting `base_url` to `https://YOUR_DOMAIN_NAME/v1/`
